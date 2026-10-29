@@ -12,5 +12,5 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 # Copia apenas o .jar gerado na etapa de build
 COPY --from=build /app/target/backend-2-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8082
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
