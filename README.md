@@ -8,6 +8,7 @@ Biblioteca Java usada pelo Cliente para cifrar, decifrar, derivar chaves, gerar 
 
 - **Visão geral, módulos e convenção de nomes:** [docs/fluxos/visao-geral.md](https://github.com/egili/pi4-0101-g6-frontend/blob/main/docs/fluxos/visao-geral.md)
 - **Fluxos por entregável (E1 a E9):** [docs/fluxos/](https://github.com/egili/pi4-0101-g6-frontend/tree/main/docs/fluxos)
+- **CI e uso do módulo pelo Cliente:** [docs/CI.md](docs/CI.md)
 
 > **Observação:** este módulo é uma biblioteca interna do Cliente. Por isso, **não possui contratos próprios** em `docs/contratos/`. Ele aparece no diagrama C4 da visão geral como um bloco dentro do Cliente.
 
