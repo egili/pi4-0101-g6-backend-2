@@ -15,17 +15,18 @@ Biblioteca Java usada pelo Cliente para cifrar, decifrar, derivar chaves, gerar 
 
 | Função | O que faz |
 |---|---|
-| `cifrar(dados, chave)` | Cifra um dado usando a chave derivada da senha mestra |
-| `decifrar(dadosCifrados, iv, chave)` | Decifra um dado cifrado |
-| `derivarChave(senhaMestra, salt)` | Deriva a chave mestra a partir da senha do usuário |
-| `gerarSalt()` | Gera um salt aleatório para o cadastro |
+| `cifrar(dados, chave)` | Cifra um dado usando a chave derivada da senha mestra (AES-GCM / CBC) |
+| `decifrar(dadosCifrados, iv, chave)` | Decifra um dado cifrado usando a chave derivada |
+| `derivarChaveCifragem(senhaMestra, salt)` | Deriva a chave mestra de cifragem (AES-256) mantida estritamente na memória local |
+| `derivarHashAutenticacao(chaveOuSenha, salt)` | Gera o hash de autenticação unidirecional enviado ao Servidor (garantindo Zero-Trust) |
+| `gerarSalt()` | Gera um salt aleatório criptograficamente seguro para o cadastro (`SecureRandom`) |
 | `gerarIV()` | Gera um vetor de inicialização para a cifragem |
 | `gerarSenhaForte(opcoes)` | Gera uma senha aleatória forte conforme as opções |
 
 ## Stack
 
 - Java (JDK 17+)
-- Criptografia nativa do Java (
+- Criptografia nativa do Java (`javax.crypto`, `java.security`)
 
 ## Integrantes do Grupo
 * Eliseu Pereira Gili — [@eliseugili](https://github.com/egili)
