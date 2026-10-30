@@ -1,6 +1,0 @@
-br/puc/cofre/backend2/controller/CryptoController.class
-br/puc/cofre/backend2/controller/StatusController.class
-br/puc/cofre/backend2/Backend2Application.class
-br/puc/cofre/backend2/service/CryptoService.class
-br/puc/cofre/backend2/dto/CryptoResponse.class
-br/puc/cofre/backend2/dto/CryptoRequest.class

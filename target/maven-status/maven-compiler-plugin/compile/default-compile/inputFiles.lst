@@ -1,6 +1,0 @@
-/app/src/main/java/br/puc/cofre/backend2/Backend2Application.java
-/app/src/main/java/br/puc/cofre/backend2/service/CryptoService.java
-/app/src/main/java/br/puc/cofre/backend2/dto/CryptoRequest.java
-/app/src/main/java/br/puc/cofre/backend2/dto/CryptoResponse.java
-/app/src/main/java/br/puc/cofre/backend2/controller/CryptoController.java
-/app/src/main/java/br/puc/cofre/backend2/controller/StatusController.java
