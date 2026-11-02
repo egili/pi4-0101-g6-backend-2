@@ -1,5 +1,5 @@
 // O que o Front-end envia
-package br.puc.cofre.backend2.dto;
+package cofre;
 
 public class CryptoRequest {
     private String senha;

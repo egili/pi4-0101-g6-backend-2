@@ -1,9 +1,6 @@
 //Rota HTTP
-package br.puc.cofre.backend2.controller;
+package cofre;
 
-import br.puc.cofre.backend2.dto.CryptoRequest;
-import br.puc.cofre.backend2.dto.CryptoResponse;
-import br.puc.cofre.backend2.service.CryptoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

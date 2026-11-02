@@ -1,7 +1,6 @@
 //Teste JUnit hash e chave diferente
-package br.puc.cofre.backend2.service;
+package cofre;
 
-import br.puc.cofre.backend2.dto.CryptoResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
