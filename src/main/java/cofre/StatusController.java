@@ -1,4 +1,4 @@
-package br.puc.cofre.backend2.controller;
+package cofre;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

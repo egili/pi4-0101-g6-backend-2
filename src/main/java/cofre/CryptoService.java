@@ -1,7 +1,6 @@
 //Lógica matemática
-package br.puc.cofre.backend2.service;
+package cofre;
 
-import br.puc.cofre.backend2.dto.CryptoResponse;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKeyFactory;

@@ -1,5 +1,5 @@
 //O que é devolvido pro Front-end
-package br.puc.cofre.backend2.dto;
+package cofre;
 
 public class CryptoResponse {
     private String salt;
