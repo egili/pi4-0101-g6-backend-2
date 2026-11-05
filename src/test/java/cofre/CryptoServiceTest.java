@@ -101,7 +101,8 @@ public class CryptoServiceTest {
 
         System.out.println("Teste passou! Exceção lançada corretamente ao decifrar com chave incorreta.");
     }
-}
+
+    @Test
     public void geraSenhaComTamanhoEOsTiposEscolhidos() {
         String senha = cryptoService.gerarSenhaForte(20, false, true, true, false);
 
