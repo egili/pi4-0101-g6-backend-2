@@ -102,3 +102,28 @@ public class CryptoServiceTest {
         System.out.println("Teste passou! Exceção lançada corretamente ao decifrar com chave incorreta.");
     }
 }
+    public void geraSenhaComTamanhoEOsTiposEscolhidos() {
+        String senha = cryptoService.gerarSenhaForte(20, false, true, true, false);
+
+        assertEquals(20, senha.length());
+        assertTrue(senha.matches("[a-z0-9]{20}"), "A senha deve ter só minúsculas e números");
+    }
+
+    @Test
+    public void senhaTemUmCaractereDeCadaTipoEscolhido() {
+        for (int i = 0; i < 100; i++) {
+            String senha = cryptoService.gerarSenhaForte(4, true, true, true, true);
+
+            assertTrue(senha.matches(".*[A-Z].*"), "Falta maiúscula: " + senha);
+            assertTrue(senha.matches(".*[a-z].*"), "Falta minúscula: " + senha);
+            assertTrue(senha.matches(".*[0-9].*"), "Falta número: " + senha);
+            assertTrue(senha.matches(".*[!@#$%&*()\\-_=+\\[\\]{};:,.?].*"), "Falta símbolo: " + senha);
+        }
+    }
+
+    @Test
+    public void recusaOpcoesInvalidas() {
+        assertThrows(IllegalArgumentException.class, () -> cryptoService.gerarSenhaForte(10, false, false, false, false));
+        assertThrows(IllegalArgumentException.class, () -> cryptoService.gerarSenhaForte(2, true, true, true, false));
+    }
+}
