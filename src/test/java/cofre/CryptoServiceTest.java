@@ -127,4 +127,14 @@ public class CryptoServiceTest {
         assertThrows(IllegalArgumentException.class, () -> cryptoService.gerarSenhaForte(10, false, false, false, false));
         assertThrows(IllegalArgumentException.class, () -> cryptoService.gerarSenhaForte(2, true, true, true, false));
     }
+
+    @Test
+    public void loginComSaltCadastradoReproduzHashEChaveDoCadastro() {
+        String senhaMestra = "MinhaSenhaSuperSecreta123!";
+        CryptoResponse cadastro = cryptoService.gerarCredenciais(senhaMestra);
+
+        assertEquals(cadastro.getHashLogin(), cryptoService.derivarHashLogin(senhaMestra, cadastro.getSalt()));
+        assertEquals(cadastro.getChaveCifra(), cryptoService.derivarChaveCifragem(senhaMestra, cadastro.getSalt()));
+        assertNotEquals(cadastro.getHashLogin(), cryptoService.derivarHashLogin("outra senha", cadastro.getSalt()));
+    }
 }

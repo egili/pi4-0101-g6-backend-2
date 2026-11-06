@@ -76,6 +76,27 @@ public class CryptoService {
         return resultado.toString();
     }
 
+    /**
+     * Deriva o hash de login a partir de um salt já cadastrado (usado no login, card 831).
+     * Correção do H03.1 (card 827): antes só existia a derivação com salt novo em gerarCredenciais.
+     */
+    public String derivarHashLogin(String senhaMestra, String saltBase64) {
+        try {
+            return derivarChave(senhaMestra, "auth" + saltBase64);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao derivar hash de login", e);
+        }
+    }
+
+    /** Deriva a chave de cifragem a partir de um salt já cadastrado (usada no login, card 831). */
+    public String derivarChaveCifragem(String senhaMestra, String saltBase64) {
+        try {
+            return derivarChave(senhaMestra, "encrypt" + saltBase64);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao derivar chave de cifragem", e);
+        }
+    }
+
     private String derivarChave(String senha, String saltComContexto) throws Exception {
         PBEKeySpec spec = new PBEKeySpec(senha.toCharArray(), saltComContexto.getBytes(), ITERATIONS, KEY_LENGTH);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
