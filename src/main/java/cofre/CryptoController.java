@@ -1,4 +1,3 @@
-//Rota HTTP
 package cofre;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,18 @@ public class CryptoController {
 
     @PostMapping("/derivar")
     public CryptoResponse derivarCredenciais(@RequestBody CryptoRequest request) {
-        return cryptoService.gerarCredenciais(request.getSenha());
+        String senha = request.getSenha();
+        String salt = request.getSalt();
+
+        // Se o salt foi enviado, é LOGIN
+        if (salt != null && !salt.isEmpty()) {
+            String hashLogin = cryptoService.derivarHashLogin(senha, salt);
+            String chaveCifra = cryptoService.derivarChaveCifragem(senha, salt);
+            return new CryptoResponse(salt, hashLogin, chaveCifra);
+        } 
+        
+        // Se não tem salt, é CADASTRO
+        return cryptoService.gerarCredenciais(senha);
     }
 
     @GetMapping("/generate")
