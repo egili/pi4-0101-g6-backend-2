@@ -42,50 +42,10 @@ public class CryptoControllerTest {
     }
 
     @Test
-    public void decifraBlobEDevolveSenhaEmClaro() throws Exception {
-        CryptoResponse credenciais = cryptoService.gerarCredenciais("mestra-teste");
-        CifraResponse cifra = cryptoService.cifrar("senha-gmail", credenciais.getChaveCifra());
-
-        String body = """
-                {"dadosCifrados":"%s","iv":"%s","chaveCifra":"%s"}
-                """.formatted(
-                cifra.getDadosCifrados(),
-                cifra.getIv(),
-                credenciais.getChaveCifra());
-
-        mvc.perform(post("/api/crypto/decifrar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.senha").value("senha-gmail"));
-    }
-
-    @Test
-    public void recusaDecifrarSemBlob() throws Exception {
-        mvc.perform(post("/api/crypto/decifrar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.erro").value("DADOS_INVALIDOS"));
-    }
-
-    @Test
-    public void recusaDecifrarComChaveErrada() throws Exception {
-        CryptoResponse dono = cryptoService.gerarCredenciais("mestra-dona");
-        CryptoResponse outra = cryptoService.gerarCredenciais("mestra-outra");
-        CifraResponse cifra = cryptoService.cifrar("segredo", dono.getChaveCifra());
-
-        String body = """
-                {"dadosCifrados":"%s","iv":"%s","chaveCifra":"%s"}
-                """.formatted(
-                cifra.getDadosCifrados(),
-                cifra.getIv(),
-                outra.getChaveCifra());
-
-        mvc.perform(post("/api/crypto/decifrar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.erro").value("FALHA_DECIFRAGEM"));
+    public void rotasQueDevolviamOuRecebiamChaveForamRemovidas() throws Exception {
+        mvc.perform(post("/api/crypto/decifrar").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isNotFound());
+        mvc.perform(post("/api/crypto/derivar").contentType(MediaType.APPLICATION_JSON).content("{\"senha\":\"x\"}"))
+                .andExpect(status().isNotFound());
     }
 }
