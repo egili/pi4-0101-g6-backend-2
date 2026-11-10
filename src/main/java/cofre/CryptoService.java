@@ -97,6 +97,15 @@ public class CryptoService {
         }
     }
 
+    /** Deriva a chave do arquivo .vault a partir da senha do backup e do salt do arquivo (ADR 0006). */
+    public String derivarChaveVault(String senhaBackup, String saltBase64) {
+        try {
+            return derivarChave(senhaBackup, "vault" + saltBase64);
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao derivar chave do backup", e);
+        }
+    }
+
     private String derivarChave(String senha, String saltComContexto) throws Exception {
         PBEKeySpec spec = new PBEKeySpec(senha.toCharArray(), saltComContexto.getBytes(), ITERATIONS, KEY_LENGTH);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
