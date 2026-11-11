@@ -32,7 +32,11 @@ public class LeitorDoServidor extends Thread {
         try {
             for (;;) {
                 Comunicado recebido = servidor.envie();
-                if (recebido == null || recebido instanceof ComunicadoDeDesligamento) {
+                if (recebido instanceof ComunicadoDeDesligamento) {
+                    System.err.println("O servidor vai ser desligado agora; volte mais tarde!");
+                    break;
+                }
+                if (recebido == null) {
                     break;
                 }
                 if (recebido instanceof Resposta resposta) {
