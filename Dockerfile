@@ -13,6 +13,7 @@ WORKDIR /app
 # Copia apenas o .jar gerado na etapa de build
 COPY --from=build /app/target/backend-2-0.0.1-SNAPSHOT-exec.jar app.jar
 RUN addgroup -S app && adduser -S app -G app
+RUN mkdir -p /app/logs && chown app:app /app/logs
 USER app
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,1 +1,4 @@
 target/
+
+# Logs locais (o contêiner grava em volume próprio)
+logs/

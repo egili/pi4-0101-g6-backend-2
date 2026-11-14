@@ -1,0 +1,25 @@
+<configuration>
+
+    <!-- Arquivo com rotação diária e sem limite de tempo: os arquivos antigos ficam guardados até serem apagados. -->
+    <appender name="ARQUIVO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR:-logs}/cliente.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR:-logs}/cliente-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{0} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${LOG_NIVEL:-INFO}">
+        <appender-ref ref="ARQUIVO"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

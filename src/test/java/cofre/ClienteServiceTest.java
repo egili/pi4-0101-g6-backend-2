@@ -2,7 +2,11 @@ package cofre;
 
 import cofre.protocolo.CredencialDto;
 import cofre.protocolo.PedidoDeCriacao;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.LoggerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,6 +99,23 @@ public class ClienteServiceTest {
 
         assertEquals("SENHA_INCORRETA", erro.getCodigo());
         assertEquals(antes, servidor.cofre().size());
+    }
+
+    @Test
+    public void logDoClienteNaoTemSenhaMestra() {
+        Logger logCofre = (Logger) LoggerFactory.getLogger("cofre");
+        ListAppender<ILoggingEvent> captura = new ListAppender<>();
+        captura.start();
+        logCofre.addAppender(captura);
+        try {
+            assertThrows(ErroCliente.class, () -> cliente.login("eliseu", "senha-errada-XYZ"));
+            String registro = captura.list.stream().map(ILoggingEvent::getFormattedMessage)
+                    .reduce("", (a, b) -> a + "\n" + b);
+            assertTrue(registro.contains("eliseu"), "o nome do usuário deve aparecer no log");
+            assertFalse(registro.contains("senha-errada-XYZ"), "a senha digitada não pode aparecer no log");
+        } finally {
+            logCofre.detachAppender(captura);
+        }
     }
 
     @Test

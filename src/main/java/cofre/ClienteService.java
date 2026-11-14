@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -17,6 +20,8 @@ import java.util.Map;
  */
 @Service
 public class ClienteService {
+
+    private static final Logger log = LoggerFactory.getLogger(ClienteService.class);
 
     static final int VERSAO_VAULT = 1;
     static final String ALGORITMO_VAULT = "AES-256-GCM";
@@ -59,9 +64,16 @@ public class ClienteService {
         String hashLogin = crypto.derivarHashLogin(senha, salt);
         String chaveCifragem = crypto.derivarChaveCifragem(senha, salt);
 
-        Map<String, Object> resposta = servidor.login(username, hashLogin);
+        Map<String, Object> resposta;
+        try {
+            resposta = servidor.login(username, hashLogin);
+        } catch (ErroCliente e) {
+            log.warn("Login recusado: usuário {} ({})", username, e.getCodigo());
+            throw e;
+        }
         Long usuarioId = ((Number) resposta.get("usuarioId")).longValue();
         sessao.iniciar((String) resposta.get("token"), chaveCifragem, usuarioId, username);
+        log.info("Login: usuário {} (id {})", username, usuarioId);
 
         return mapa("usuarioId", usuarioId, "username", username, "mensagem", "Login realizado com sucesso");
     }
@@ -128,6 +140,7 @@ public class ClienteService {
                     "senha", decifrar(c)));
         }
 
+        log.info("Exportação de backup: {} credenciais", emClaro.size());
         String salt = gerarSalt();
         CifraResponse corpo = crypto.cifrar(serializar(emClaro), crypto.derivarChaveVault(senhaBackup, salt));
         return mapa("versao", VERSAO_VAULT, "algoritmo", ALGORITMO_VAULT,
@@ -152,6 +165,7 @@ public class ClienteService {
             json = null;
         }
         if (json == null) {
+            log.warn("Importação recusada: senha do backup incorreta");
             throw new ErroCliente("SENHA_INCORRETA");
         }
 
@@ -172,6 +186,7 @@ public class ClienteService {
         }
 
         Map<String, Object> resposta = servidor.importarBackup(token, reCifradas);
+        log.info("Importação de backup: {} credenciais", reCifradas.size());
         return mapa("credenciaisInseridas", resposta.get("credenciaisInseridas"), "mensagem", "Backup restaurado com sucesso");
     }
 
@@ -183,6 +198,7 @@ public class ClienteService {
             senha = null;
         }
         if (senha == null) {
+            log.warn("Falha ao decifrar a credencial {}", item.get("credencialId"));
             throw new ErroCliente("FALHA_DECIFRAGEM");
         }
         return senha;
