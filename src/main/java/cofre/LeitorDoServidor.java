@@ -9,11 +9,16 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Thread única que lê tudo que chega do Servidor: respostas vão para a fila de quem pediu,
  * e o aviso de desligamento encerra a conexão. Ter um só leitor evita dois leitores no mesmo stream.
  */
 public class LeitorDoServidor extends Thread {
+
+    private static final Logger log = LoggerFactory.getLogger(LeitorDoServidor.class);
 
     private final Parceiro servidor;
     private final BlockingQueue<Resposta> respostas;
@@ -33,7 +38,7 @@ public class LeitorDoServidor extends Thread {
             for (;;) {
                 Comunicado recebido = servidor.envie();
                 if (recebido instanceof ComunicadoDeDesligamento) {
-                    System.err.println("O servidor vai ser desligado agora; volte mais tarde!");
+                    log.warn("O servidor vai ser desligado agora; volte mais tarde");
                     break;
                 }
                 if (recebido == null) {
@@ -44,6 +49,7 @@ public class LeitorDoServidor extends Thread {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
+            log.warn("Conexão com o Servidor perdida: {}", e.getClass().getSimpleName());
             // conexão caiu
         } finally {
             servidor.adeus();

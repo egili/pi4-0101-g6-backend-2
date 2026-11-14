@@ -18,6 +18,9 @@ import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -36,6 +39,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class ClienteServidor {
+
+    private static final Logger log = LoggerFactory.getLogger(ClienteServidor.class);
 
     private static final long TIMEOUT_SEGUNDOS = 15;
 
@@ -114,6 +119,7 @@ public class ClienteServidor {
                 servidor.receba(pedido);
                 Resposta resposta = respostas.poll(TIMEOUT_SEGUNDOS, TimeUnit.SECONDS);
                 if (resposta == null) {
+                    log.warn("Servidor não respondeu em {} s", TIMEOUT_SEGUNDOS);
                     desconectar();
                     throw new ErroCliente("ERRO_CONEXAO");
                 }
@@ -142,7 +148,9 @@ public class ClienteServidor {
             respostas.clear();
             servidor = novo;
             new LeitorDoServidor(novo, respostas, this::encerrado).start();
+            log.info("Conectado ao Servidor {}:{}", host, porta);
         } catch (IOException e) {
+            log.warn("Não foi possível conectar ao Servidor {}:{}", host, porta);
             throw new ErroCliente("ERRO_CONEXAO");
         }
     }
