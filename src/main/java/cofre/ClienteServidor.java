@@ -81,12 +81,12 @@ public class ClienteServidor {
     }
 
     public Map<String, Object> atualizar(String token, String id, Map<String, Object> corpo) {
-        return pedir(new PedidoDeAtualizacao(token, Long.valueOf(id), texto(corpo, "servico"),
+        return pedir(new PedidoDeAtualizacao(token, idValido(id), texto(corpo, "servico"),
                 texto(corpo, "usuarioServico"), texto(corpo, "dadosCifrados"), texto(corpo, "iv"))).getDados();
     }
 
     public Map<String, Object> excluir(String token, String id) {
-        return pedir(new PedidoDeExclusao(token, Long.valueOf(id))).getDados();
+        return pedir(new PedidoDeExclusao(token, idValido(id))).getDados();
     }
 
     public Map<String, Object> exportarBackup(String token) {
@@ -172,6 +172,14 @@ public class ClienteServidor {
     private void encerrado(Parceiro quem) {
         if (servidor == quem) {
             servidor = null;
+        }
+    }
+
+    private static Long idValido(String id) {
+        try {
+            return Long.valueOf(id);
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new ErroCliente("DADOS_INVALIDOS");
         }
     }
 
