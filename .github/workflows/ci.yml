@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     steps:
     - uses: actions/checkout@v4
@@ -20,10 +22,14 @@ jobs:
         cache: maven
     - name: Build, testes e cobertura
       run: mvn -B verify
+    - name: Set up JDK 21 (scanner do SonarQube exige 21+)
+      if: ${{ env.SONAR_TOKEN != '' && vars.SONAR_ORGANIZATION != '' && vars.SONAR_PROJECT_KEY != '' }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
     - name: Análise SonarQube
-      if: ${{ secrets.SONAR_TOKEN != '' && vars.SONAR_ORGANIZATION != '' && vars.SONAR_PROJECT_KEY != '' }}
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      if: ${{ env.SONAR_TOKEN != '' && vars.SONAR_ORGANIZATION != '' && vars.SONAR_PROJECT_KEY != '' }}
       run: >
         mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar
         -Dsonar.host.url=https://sonarcloud.io
