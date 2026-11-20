@@ -119,6 +119,17 @@ public class ClienteServiceTest {
     }
 
     @Test
+    public void idNaoNumericoEhRecusadoComoDadosInvalidos() {
+        cliente.login("eliseu", SENHA);
+
+        ErroCliente editar = assertThrows(ErroCliente.class, () -> cliente.editar("abc", "s", "u", "p"));
+        ErroCliente excluir = assertThrows(ErroCliente.class, () -> cliente.excluir("abc"));
+
+        assertEquals("DADOS_INVALIDOS", editar.getCodigo());
+        assertEquals("DADOS_INVALIDOS", excluir.getCodigo());
+    }
+
+    @Test
     public void semSessaoNenhumPedidoDeCredencialSai() {
         ErroCliente erro = assertThrows(ErroCliente.class, () -> cliente.listar());
 
