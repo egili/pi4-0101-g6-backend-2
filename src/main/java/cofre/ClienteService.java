@@ -68,12 +68,12 @@ public class ClienteService {
         try {
             resposta = servidor.login(username, hashLogin);
         } catch (ErroCliente e) {
-            log.warn("Login recusado: usuário {} ({})", username, e.getCodigo());
+            log.warn("Login recusado: usuário {} ({})", LogSeguro.limpar(username), e.getCodigo());
             throw e;
         }
         Long usuarioId = ((Number) resposta.get("usuarioId")).longValue();
         sessao.iniciar((String) resposta.get("token"), chaveCifragem, usuarioId, username);
-        log.info("Login: usuário {} (id {})", username, usuarioId);
+        log.info("Login: usuário {} (id {})", LogSeguro.limpar(username), usuarioId);
 
         return mapa("usuarioId", usuarioId, "username", username, "mensagem", "Login realizado com sucesso");
     }
@@ -96,9 +96,7 @@ public class ClienteService {
     public Map<String, Object> salvar(String servico, String usuarioServico, String senha) {
         String token = exigirSessao();
         exigirCredencial(servico, usuarioServico, senha);
-        CifraResponse cifra = crypto.cifrar(senha, sessao.getChaveCifragem());
-        return servidor.criar(token, mapa("servico", servico, "usuarioServico", usuarioServico,
-                "dadosCifrados", cifra.getDadosCifrados(), "iv", cifra.getIv()));
+        return servidor.criar(token, corpoCifrado(servico, usuarioServico, senha));
     }
 
     public String revelar(String id) {
@@ -113,9 +111,7 @@ public class ClienteService {
     public Map<String, Object> editar(String id, String servico, String usuarioServico, String senha) {
         String token = exigirSessao();
         exigirCredencial(servico, usuarioServico, senha);
-        CifraResponse cifra = crypto.cifrar(senha, sessao.getChaveCifragem());
-        return servidor.atualizar(token, id, mapa("servico", servico, "usuarioServico", usuarioServico,
-                "dadosCifrados", cifra.getDadosCifrados(), "iv", cifra.getIv()));
+        return servidor.atualizar(token, id, corpoCifrado(servico, usuarioServico, senha));
     }
 
     public Map<String, Object> excluir(String id) {
@@ -180,14 +176,18 @@ public class ClienteService {
             String usuarioServico = (String) c.get("usuarioServico");
             String senha = (String) c.get("senha");
             exigirCredencial(servico, usuarioServico, senha);
-            CifraResponse cifra = crypto.cifrar(senha, sessao.getChaveCifragem());
-            reCifradas.add(mapa("servico", servico, "usuarioServico", usuarioServico,
-                    "dadosCifrados", cifra.getDadosCifrados(), "iv", cifra.getIv()));
+            reCifradas.add(corpoCifrado(servico, usuarioServico, senha));
         }
 
         Map<String, Object> resposta = servidor.importarBackup(token, reCifradas);
         log.info("Importação de backup: {} credenciais", reCifradas.size());
         return mapa("credenciaisInseridas", resposta.get("credenciaisInseridas"), "mensagem", "Backup restaurado com sucesso");
+    }
+
+    private Map<String, Object> corpoCifrado(String servico, String usuarioServico, String senha) {
+        CifraResponse cifra = crypto.cifrar(senha, sessao.getChaveCifragem());
+        return mapa("servico", servico, "usuarioServico", usuarioServico,
+                "dadosCifrados", cifra.getDadosCifrados(), "iv", cifra.getIv());
     }
 
     private String decifrar(Map<String, Object> item) {
@@ -198,7 +198,7 @@ public class ClienteService {
             senha = null;
         }
         if (senha == null) {
-            log.warn("Falha ao decifrar a credencial {}", item.get("credencialId"));
+            log.warn("Falha ao decifrar a credencial {}", LogSeguro.limpar(item.get("credencialId")));
             throw new ErroCliente("FALHA_DECIFRAGEM");
         }
         return senha;
