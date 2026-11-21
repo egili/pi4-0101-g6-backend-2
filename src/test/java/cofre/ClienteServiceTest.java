@@ -119,6 +119,22 @@ public class ClienteServiceTest {
     }
 
     @Test
+    public void nomeComQuebraDeLinhaNaoForjaLinhaNoLog() {
+        Logger logCofre = (Logger) LoggerFactory.getLogger("cofre");
+        ListAppender<ILoggingEvent> captura = new ListAppender<>();
+        captura.start();
+        logCofre.addAppender(captura);
+        try {
+            assertThrows(ErroCliente.class, () -> cliente.login("eliseu\nWARN falso", "senha-errada"));
+            for (ILoggingEvent evento : captura.list) {
+                assertFalse(evento.getFormattedMessage().contains("\n"), "quebra de linha no log");
+            }
+        } finally {
+            logCofre.detachAppender(captura);
+        }
+    }
+
+    @Test
     public void idNaoNumericoEhRecusadoComoDadosInvalidos() {
         cliente.login("eliseu", SENHA);
 
