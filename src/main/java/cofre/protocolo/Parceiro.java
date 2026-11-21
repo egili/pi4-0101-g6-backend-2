@@ -16,7 +16,12 @@ import java.util.concurrent.Semaphore;
  */
 public class Parceiro {
 
-    private static final String FILTRO = "cofre.protocolo.*;java.lang.*;java.util.*;maxdepth=8;maxrefs=10000;maxarray=10000;!*";
+    /**
+     * Allowlist exata: só as mensagens do protocolo, Long, Integer, String e as duas coleções usadas nas respostas.
+     * Pacotes inteiros (java.lang.*, java.util.*) foram removidos para não aceitar classes de gadgets.
+     */
+    private static final String FILTRO = "cofre.protocolo.*;java.lang.Long;java.lang.Integer;java.lang.String;"
+            + "java.util.ArrayList;java.util.HashMap;java.lang.Object;java.util.Map$Entry;java.lang.Number;maxdepth=6;maxrefs=2000;maxarray=2000;!*";
 
     private final Socket conexao;
     private final ObjectInputStream receptor;
@@ -36,7 +41,8 @@ public class Parceiro {
     /** Cria o receptor com o filtro. O transmissor deve ser criado antes, em ambos os lados. */
     public static ObjectInputStream novoReceptor(InputStream entrada) throws IOException {
         ObjectInputStream receptor = new ObjectInputStream(entrada);
-        receptor.setObjectInputFilter(ObjectInputFilter.Config.createFilter(FILTRO));
+        ObjectInputFilter filtro = ObjectInputFilter.Config.createFilter(FILTRO);
+        receptor.setObjectInputFilter(info -> filtro.checkInput(info));
         return receptor;
     }
 
