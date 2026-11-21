@@ -115,10 +115,10 @@ public class CryptoServiceTest {
         for (int i = 0; i < 100; i++) {
             String senha = cryptoService.gerarSenhaForte(4, true, true, true, true);
 
-            assertTrue(senha.matches(".*[A-Z].*"), "Falta maiúscula: " + senha);
-            assertTrue(senha.matches(".*[a-z].*"), "Falta minúscula: " + senha);
-            assertTrue(senha.matches(".*[0-9].*"), "Falta número: " + senha);
-            assertTrue(senha.matches(".*[!@#$%&*()\\-_=+\\[\\]{};:,.?].*"), "Falta símbolo: " + senha);
+            assertTrue(contemAlgum(senha, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"), "Falta maiúscula: " + senha);
+            assertTrue(contemAlgum(senha, "abcdefghijklmnopqrstuvwxyz"), "Falta minúscula: " + senha);
+            assertTrue(contemAlgum(senha, "0123456789"), "Falta número: " + senha);
+            assertTrue(contemAlgum(senha, "!@#$%&*()-_=+[]{};:,.?"), "Falta símbolo: " + senha);
         }
     }
 
@@ -136,5 +136,9 @@ public class CryptoServiceTest {
         assertEquals(cadastro.getHashLogin(), cryptoService.derivarHashLogin(senhaMestra, cadastro.getSalt()));
         assertEquals(cadastro.getChaveCifra(), cryptoService.derivarChaveCifragem(senhaMestra, cadastro.getSalt()));
         assertNotEquals(cadastro.getHashLogin(), cryptoService.derivarHashLogin("outra senha", cadastro.getSalt()));
+    }
+
+    private static boolean contemAlgum(String texto, String conjunto) {
+        return texto.chars().anyMatch(c -> conjunto.indexOf(c) >= 0);
     }
 }

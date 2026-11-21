@@ -21,6 +21,7 @@ public class CryptoService {
     private static final int ITERATIONS = 120000;
     private static final int KEY_LENGTH = 256;
     private static final int SALT_LENGTH = 16;
+    private static final SecureRandom RANDOM = new SecureRandom();
     private static final String MAIUSCULAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String MINUSCULAS = "abcdefghijklmnopqrstuvwxyz";
     private static final String NUMEROS = "0123456789";
@@ -35,7 +36,7 @@ public class CryptoService {
         try {
             // 1. Gera um Salt aleatório
             byte[] saltBytes = new byte[SALT_LENGTH];
-            new SecureRandom().nextBytes(saltBytes);
+            RANDOM.nextBytes(saltBytes);
             String saltBase64 = Base64.getEncoder().encodeToString(saltBytes);
 
             // 2. Deriva o Hash de Login (usando "auth" como contexto)
@@ -64,7 +65,7 @@ public class CryptoService {
         }
 
         // Um caractere de cada tipo escolhido, o resto do conjunto inteiro, depois embaralha
-        SecureRandom random = new SecureRandom();
+        SecureRandom random = RANDOM;
         String todos = String.join("", grupos);
         List<Character> senha = new ArrayList<>();
         for (String grupo : grupos) senha.add(grupo.charAt(random.nextInt(grupo.length())));
@@ -125,7 +126,7 @@ public class CryptoService {
         try {
             // Gera obrigatoriamente um IV novo, aleatório e exclusivo (12 bytes via SecureRandom) a cada cifragem
             byte[] ivBytes = new byte[GCM_IV_LENGTH];
-            new SecureRandom().nextBytes(ivBytes);
+            RANDOM.nextBytes(ivBytes);
 
             byte[] chaveBytes = Base64.getDecoder().decode(chaveBase64);
             SecretKeySpec secretKey = new SecretKeySpec(chaveBytes, ALGORITHM);

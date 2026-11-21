@@ -1,6 +1,5 @@
 package cofre;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -11,8 +10,11 @@ import java.util.Map;
 @RequestMapping("/api/crypto")
 public class CryptoController {
 
-    @Autowired
-    private CryptoService cryptoService;
+    private final CryptoService cryptoService;
+
+    public CryptoController(CryptoService cryptoService) {
+        this.cryptoService = cryptoService;
+    }
 
     @GetMapping("/generate")
     public Map<String, String> gerarSenha(@RequestParam int tamanho, @RequestParam boolean maiusculas,
