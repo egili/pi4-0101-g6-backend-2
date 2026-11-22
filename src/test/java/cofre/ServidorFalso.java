@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Servidor de mentira para testar o Cliente pelo socket, com o mesmo protocolo do Back-end 1. */
+/** Servidor de mentira para testar o Cliente pelo socket, com o mesmo protocolo do Servidor. */
 class ServidorFalso implements AutoCloseable {
 
     final List<Comunicado> recebidos = new ArrayList<>();
