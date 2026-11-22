@@ -137,4 +137,23 @@ public class ClienteControllerTest {
                     .andExpect(jsonPath("$.erro").value(caso.getKey()));
         }
     }
+
+    @Test
+    public void trocaDeSenhaMestraPassaAsSenhasAoServico() throws Exception {
+        when(cliente.alterarSenhaMestra("atual", "nova")).thenReturn(Map.of("mensagem", "ok"));
+
+        mvc.perform(post("/api/senha-mestra").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"senhaAtual\":\"atual\",\"novaSenha\":\"nova\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void credenciaisDesatualizadasViramConflito() throws Exception {
+        when(cliente.alterarSenhaMestra("a", "b")).thenThrow(new ErroCliente("CREDENCIAIS_DESATUALIZADAS"));
+
+        mvc.perform(post("/api/senha-mestra").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"senhaAtual\":\"a\",\"novaSenha\":\"b\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.erro").value("CREDENCIAIS_DESATUALIZADAS"));
+    }
 }

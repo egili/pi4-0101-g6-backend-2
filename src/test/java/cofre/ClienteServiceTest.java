@@ -2,6 +2,7 @@ package cofre;
 
 import cofre.protocolo.CredencialDto;
 import cofre.protocolo.PedidoDeCriacao;
+import cofre.protocolo.PedidoDeTrocaSenha;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -151,5 +152,32 @@ public class ClienteServiceTest {
 
         assertEquals("SESSAO_INVALIDA", erro.getCodigo());
         assertTrue(servidor.recebidos.stream().noneMatch(c -> c instanceof cofre.protocolo.PedidoDeListagem));
+    }
+
+    @Test
+    public void trocaDeSenhaMestraMandaAsCredenciaisRecifradasAoServidor() {
+        cliente.login("eliseu", SENHA);
+        cliente.salvar("Gmail", "a@x.com", "segredo-1");
+
+        cliente.alterarSenhaMestra(SENHA, "NovaSenha!456");
+
+        PedidoDeTrocaSenha troca = servidor.ultimaTroca();
+        assertEquals(crypto.derivarHashLogin(SENHA, cadastro.getSalt()), troca.getHashLoginAtual());
+        CredencialDto c = troca.getCredenciais().get(0);
+        String chaveNova = crypto.derivarChaveCifragem("NovaSenha!456", troca.getNovoSalt());
+        assertEquals("segredo-1", crypto.decifrar(c.getDadosCifrados(), c.getIv(), chaveNova));
+        assertEquals(chaveNova, sessao.getChaveCifragem());
+    }
+
+    @Test
+    public void trocaComSenhaAtualErradaNaoMandaNada() {
+        cliente.login("eliseu", SENHA);
+        cliente.salvar("Gmail", "a@x.com", "segredo-1");
+
+        ErroCliente erro = assertThrows(ErroCliente.class, () -> cliente.alterarSenhaMestra("errada", "NovaSenha!456"));
+
+        assertEquals("SENHA_INCORRETA", erro.getCodigo());
+        assertNull(servidor.ultimaTroca());
+        assertEquals(cadastro.getChaveCifra(), sessao.getChaveCifragem());
     }
 }
