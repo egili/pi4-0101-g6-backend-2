@@ -118,6 +118,31 @@ public class ClienteService {
         return servidor.excluir(exigirSessao(), id);
     }
 
+    public Map<String, Object> alterarSenhaMestra(String senhaAtual, String novaSenha) {
+        String token = exigirSessao();
+        String username = sessao.getUsername();
+        exigirCampos(username, senhaAtual);
+        exigirCampos(username, novaSenha);
+
+        String saltAtual = servidor.buscarSalt(username);
+        String hashAtual = crypto.derivarHashLogin(senhaAtual, saltAtual);
+        servidor.login(username, hashAtual);
+        String chaveAtual = crypto.derivarChaveCifragem(senhaAtual, saltAtual);
+
+        CryptoResponse nova = crypto.gerarCredenciais(novaSenha);
+        String chaveNova = crypto.derivarChaveCifragem(novaSenha, nova.getSalt());
+        List<Map<String, Object>> recifradas = new ArrayList<>();
+        for (Map<String, Object> item : servidor.listar(token)) {
+            CifraResponse cifra = crypto.cifrar(decifrarCom(item, chaveAtual), chaveNova);
+            recifradas.add(mapa("credencialId", item.get("credencialId"), "dadosCifrados", cifra.getDadosCifrados(), "iv", cifra.getIv()));
+        }
+
+        servidor.trocarSenhaMestra(token, hashAtual, nova.getHashLogin(), nova.getSalt(), recifradas);
+        sessao.iniciar(token, chaveNova, sessao.getUsuarioId(), username);
+        log.info("Senha mestra trocada: usuário {} ({} credenciais recifradas)", LogSeguro.limpar(username), recifradas.size());
+        return mapa("mensagem", "Senha mestra alterada com sucesso");
+    }
+
     public Map<String, Object> exportar(String senhaBackup) {
         String token = exigirSessao();
         exigirSenhaBackup(senhaBackup);
@@ -191,14 +216,17 @@ public class ClienteService {
     }
 
     private String decifrar(Map<String, Object> item) {
+        return decifrarCom(item, sessao.getChaveCifragem());
+    }
+
+    private String decifrarCom(Map<String, Object> item, String chave) {
         String senha;
         try {
-            senha = crypto.decifrar((String) item.get("dadosCifrados"), (String) item.get("iv"), sessao.getChaveCifragem());
+            senha = crypto.decifrar((String) item.get("dadosCifrados"), (String) item.get("iv"), chave);
         } catch (RuntimeException e) {
             senha = null;
         }
         if (senha == null) {
-            log.warn("Falha ao decifrar a credencial {}", LogSeguro.limpar(item.get("credencialId")));
             throw new ErroCliente("FALHA_DECIFRAGEM");
         }
         return senha;

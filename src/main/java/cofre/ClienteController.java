@@ -82,6 +82,11 @@ public class ClienteController {
         return cliente.importar(vault, senhaBackup);
     }
 
+    @PostMapping("/senha-mestra")
+    public Map<String, Object> trocarSenhaMestra(@RequestBody(required = false) Map<String, String> body) {
+        return cliente.alterarSenhaMestra(campo(body, "senhaAtual"), campo(body, "novaSenha"));
+    }
+
     @ExceptionHandler(ErroCliente.class)
     public ResponseEntity<Map<String, Object>> erro(ErroCliente e) {
         return ResponseEntity.status(statusDe(e.getCodigo())).body(mapa("erro", e.getCodigo()));
@@ -92,7 +97,7 @@ public class ClienteController {
             case "SESSAO_INVALIDA", "SENHA_INCORRETA" -> HttpStatus.UNAUTHORIZED;
             case "ACESSO_NEGADO" -> HttpStatus.FORBIDDEN;
             case "CREDENCIAL_NAO_ENCONTRADA", "USUARIO_NAO_ENCONTRADO" -> HttpStatus.NOT_FOUND;
-            case "USUARIO_JA_EXISTE" -> HttpStatus.CONFLICT;
+            case "USUARIO_JA_EXISTE", "CREDENCIAIS_DESATUALIZADAS" -> HttpStatus.CONFLICT;
             case "MUITAS_TENTATIVAS" -> HttpStatus.TOO_MANY_REQUESTS;
             case "CAMPO_OBRIGATORIO_AUSENTE", "DADOS_INVALIDOS", "BACKUP_VAZIO", "FALHA_DECIFRAGEM" -> HttpStatus.BAD_REQUEST;
             case "ERRO_CONEXAO" -> HttpStatus.SERVICE_UNAVAILABLE;

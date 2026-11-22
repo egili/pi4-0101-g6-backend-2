@@ -12,6 +12,7 @@ import cofre.protocolo.PedidoDeImportacao;
 import cofre.protocolo.PedidoDeListagem;
 import cofre.protocolo.PedidoDeLogin;
 import cofre.protocolo.PedidoDeSalt;
+import cofre.protocolo.PedidoDeTrocaSenha;
 import cofre.protocolo.PedidoParaSair;
 import cofre.protocolo.Resposta;
 import jakarta.annotation.PreDestroy;
@@ -102,6 +103,14 @@ public class ClienteServidor {
                     texto(c, "dadosCifrados"), texto(c, "iv")));
         }
         return pedir(new PedidoDeImportacao(token, dtos)).getDados();
+    }
+
+    public void trocarSenhaMestra(String token, String hashLoginAtual, String novoHash, String novoSalt, List<Map<String, Object>> credenciais) {
+        List<CredencialDto> dtos = new ArrayList<>();
+        for (Map<String, Object> c : credenciais) {
+            dtos.add(new CredencialDto((Long) c.get("credencialId"), null, null, texto(c, "dadosCifrados"), texto(c, "iv")));
+        }
+        pedir(new PedidoDeTrocaSenha(token, hashLoginAtual, novoHash, novoSalt, dtos));
     }
 
     /** Fecha a conexão ao encerrar o Cliente. */
