@@ -12,6 +12,7 @@ import cofre.protocolo.PedidoDeImportacao;
 import cofre.protocolo.PedidoDeListagem;
 import cofre.protocolo.PedidoDeLogin;
 import cofre.protocolo.PedidoDeSalt;
+import cofre.protocolo.PedidoDeTrocaSenha;
 import cofre.protocolo.PedidoParaSair;
 import cofre.protocolo.Resposta;
 
@@ -34,6 +35,7 @@ class ServidorFalso implements AutoCloseable {
     private final Map<String, String> hashes = new HashMap<>();
     private final List<CredencialDto> cofre = new ArrayList<>();
     private long proximoId = 1;
+    private PedidoDeTrocaSenha ultimaTroca;
     private final Thread thread;
 
     ServidorFalso() throws IOException {
@@ -74,7 +76,15 @@ class ServidorFalso implements AutoCloseable {
         }
     }
 
+    PedidoDeTrocaSenha ultimaTroca() {
+        return ultimaTroca;
+    }
+
     private Resposta responder(Comunicado pedido) {
+        if (pedido instanceof PedidoDeTrocaSenha t) {
+            ultimaTroca = t;
+            return new Resposta(null, mapa());
+        }
         if (pedido instanceof PedidoDeSalt p) {
             return new Resposta(null, mapa("salt", salts.getOrDefault(p.getUsername(), "salt-falso")));
         }
