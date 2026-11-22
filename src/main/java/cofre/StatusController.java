@@ -13,7 +13,7 @@ public class StatusController {
     public Map<String, String> verificarStatus() {
         return Map.of(
             "status", "ok",
-            "servico", "Backend 2 - Criptografia"
+            "servico", "Cliente - Criptografia"
         );
     }
 }
